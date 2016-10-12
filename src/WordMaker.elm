@@ -1,4 +1,4 @@
-module App exposing (..)
+module WordMaker exposing (..)
 
 import String
 import List
@@ -11,7 +11,7 @@ import Html.App as App
 import Utils exposing (..)
 
 main =
-  App.beginnerProgram { model = initialModel "test sentence", view = view, update = update }
+  App.beginnerProgram { model = initialModel "this is a test sentence", view = view, update = update }
 
 
 -- MODEL
@@ -86,7 +86,9 @@ renderTile index tile =
 view : Model -> Html Msg
 view model =
   div
-    []
-    [ div [] (List.indexedMap (wordSlot model.positionedTiles) model.sentence)
+    [id "main"]
+    [ h1 [] [text "Solve the Puzzle"]
+    , div [class "puzzle"] (List.indexedMap (wordSlot model.positionedTiles) model.sentence)
+    , h2 [] [text "Letter Bank"]
     , div [class "tile-bank"] (Dict.values (Dict.map renderTile model.bankedTiles))
     ]

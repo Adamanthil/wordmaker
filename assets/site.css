@@ -1,0 +1,68 @@
+body {
+  width: 100%;
+  background-color: #ffefd8;
+  font-family: arial;
+}
+
+h1 {
+  font-size: 22px;
+  color: #333;
+  margin: 6px 0;
+}
+
+h2 {
+  font-size: 16px;
+  color: #333;
+  margin: 4px 0;
+}
+
+#main {
+  margin: 0 auto;
+}
+
+.puzzle {
+  margin-bottom: 12px;
+}
+
+.word {
+  display: inline-block;
+  margin: 0 12px 4px 0;
+}
+
+.tile, .empty-slot {
+  display: inline-block;
+  height: 24px;
+  width: 24px;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 24px;
+  border: 1px solid #aaa;
+  border-radius: 3px;
+  color: #282319;
+  margin: 2px 2px;
+}
+
+.tile {
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: uppercase;
+  background-color: #f9b116;
+}
+
+@media (min-width: 320px) {
+  #main {
+    width: 320px;
+  }
+}
+
+@media (min-width: 620px) {
+  #main {
+    width: 330px;
+  }
+}
+
+@media (min-width: 1000px) {
+  #main {
+    width: 346px;
+  }
+}

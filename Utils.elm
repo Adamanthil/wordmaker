@@ -2,9 +2,6 @@ module Utils exposing (shuffleList)
 
 import List
 import Random
-import Time exposing (Time)
-
-type Msg = NewTime Time
 
 -- Shuffle implementation borrowed from Tyler Jennings:
 -- http://tylerscode.com/2016/06/list-shuffle-elm/

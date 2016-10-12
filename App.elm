@@ -7,9 +7,10 @@ import Html exposing (Html, button, div, text)
 import Html.App as App
 import Html.Events exposing (onClick)
 
+import Utils exposing (..)
 
 main =
-  App.beginnerProgram { model = initialModel "Test Sentence", view = view, update = update }
+  App.beginnerProgram { model = initialModel "test sentence", view = view, update = update }
 
 
 -- MODEL
@@ -37,6 +38,7 @@ initialModel sentence =
   , bankedTiles = sentence
       |> String.filter (\letter -> letter /= ' ')
       |> String.toList
+      |> Utils.shuffleList
       |> List.map makeLetterTile
       |> List.indexedMap (,)
       |> Dict.fromList

@@ -64,13 +64,13 @@ update msg model = model
 
 -- VIEW
 
-letterSlot : Letter -> Html Msg
-letterSlot letter =
+letterSlot : Dict Int LetterTile -> Int -> Letter -> Html Msg
+letterSlot positionedTiles index letter =
   div [] [text (String.fromChar letter)]
 
-wordSlot : Word -> Html Msg
-wordSlot word =
-  div [] (List.map letterSlot word)
+wordSlot : Dict Int LetterTile -> Int -> Word -> Html Msg
+wordSlot positionedTiles index word =
+  div [] (List.map (letterSlot positionedTiles index) word)
 
 renderTile : Int -> LetterTile -> Html Msg
 renderTile index tile =
@@ -80,6 +80,6 @@ view : Model -> Html Msg
 view model =
   div
     []
-    [ div [] (List.map wordSlot model.sentence)
+    [ div [] (List.indexedMap (wordSlot model.positionedTiles) model.sentence)
     , div [] (Dict.values (Dict.map renderTile model.bankedTiles))
     ]

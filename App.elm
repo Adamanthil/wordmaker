@@ -3,9 +3,10 @@ module App exposing (..)
 import String
 import List
 import Dict exposing(Dict)
-import Html exposing (Html, button, div, text)
-import Html.App as App
+import Html exposing (..)
+import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
+import Html.App as App
 
 import Utils exposing (..)
 
@@ -68,20 +69,24 @@ update msg model = model
 
 letterSlot : Dict Int LetterTile -> Int -> Letter -> Html Msg
 letterSlot positionedTiles index letter =
-  div [] [text (String.fromChar letter)]
+  case Dict.get index positionedTiles of
+    Just tile ->
+      renderTile index tile
+    Nothing ->
+      div [class "empty-slot"] []
 
 wordSlot : Dict Int LetterTile -> Int -> Word -> Html Msg
 wordSlot positionedTiles index word =
-  div [] (List.map (letterSlot positionedTiles index) word)
+  div [class "word"] (List.map (letterSlot positionedTiles index) word)
 
 renderTile : Int -> LetterTile -> Html Msg
 renderTile index tile =
-  div [] [text (String.fromChar (.letter tile))]
+  div [class "tile"] [text (String.fromChar (.letter tile))]
 
 view : Model -> Html Msg
 view model =
   div
     []
     [ div [] (List.indexedMap (wordSlot model.positionedTiles) model.sentence)
-    , div [] (Dict.values (Dict.map renderTile model.bankedTiles))
+    , div [class "tile-bank"] (Dict.values (Dict.map renderTile model.bankedTiles))
     ]

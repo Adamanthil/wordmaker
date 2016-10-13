@@ -11,7 +11,7 @@ import Html.App as App
 import Utils exposing (..)
 
 main =
-  App.beginnerProgram { model = initialModel "this is a test sentence", view = view, update = update }
+  App.beginnerProgram { model = initialModel "a surprise awaits you in narnia", view = view, update = update }
 
 
 -- MODEL

@@ -42,11 +42,21 @@ h2 {
   margin: 2px 2px;
 }
 
+.empty-slot:hover {
+  background-color: #fff8ed;
+  border-color: #ccc;
+}
+
 .tile {
   font-size: 18px;
   font-weight: bold;
   text-transform: uppercase;
   background-color: #f9b116;
+}
+
+.tile:hover {
+  background-color: #fad27d;
+  border-color: #ccc;
 }
 
 @media (min-width: 320px) {

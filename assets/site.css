@@ -37,6 +37,12 @@ h2 {
   border-radius: 5px;
 }
 
+.tile-bank.tile-selected:hover {
+  background-color: #fffdfa;
+  border-color: #ccc;
+  cursor: pointer;
+}
+
 .word {
   display: inline-block;
   margin: 0 14px 4px 0;

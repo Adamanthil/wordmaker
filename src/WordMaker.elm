@@ -26,7 +26,7 @@ type alias Model =
   { sentence: List Word
   , positionedTiles: Dict Int LetterTile
   , bankedTiles: Dict Int LetterTile
-  , selectedBankTile: Maybe Int
+  , selectedBankedTile: Maybe Int
   , selectedPositionedTile: Maybe Int
   }
 
@@ -45,7 +45,7 @@ initialModel sentence =
       |> List.map makeLetterTile
       |> List.indexedMap (,)
       |> Dict.fromList
-  , selectedBankTile = Nothing
+  , selectedBankedTile = Nothing
   , selectedPositionedTile = Nothing
   }
 
@@ -57,6 +57,9 @@ type Msg
   | ClickPositionedTile Int
   | ClearSelected
   | ClickSlotWithBanked Int Int
+  | ClickSlotWithPositioned Int Int
+  | ClickBankWithPositioned Int
+  | ClickBankWithBanked Int
   | NoOp
 
 update : Msg -> Model -> Model
@@ -64,19 +67,19 @@ update msg model =
   case msg of
     ClickBankTile index ->
       { model |
-        selectedBankTile = Just index,
+        selectedBankedTile = Just index,
         selectedPositionedTile = Nothing
       }
 
     ClickPositionedTile index ->
       { model |
-        selectedBankTile = Nothing,
+        selectedBankedTile = Nothing,
         selectedPositionedTile = Just index
       }
 
     ClearSelected ->
       { model |
-        selectedBankTile = Nothing,
+        selectedBankedTile = Nothing,
         selectedPositionedTile = Nothing
       }
 
@@ -84,8 +87,51 @@ update msg model =
       case Dict.get fromIndex model.bankedTiles of
         Just tile ->
           { model |
-            bankedTiles = model.bankedTiles |> Dict.remove fromIndex,
-            positionedTiles = model.positionedTiles |> Dict.insert index tile
+            bankedTiles = model.bankedTiles
+              |> Dict.remove fromIndex
+              |> Dict.values
+              |> List.indexedMap (,)
+              |> Dict.fromList
+          , positionedTiles = model.positionedTiles |> Dict.insert index tile
+          , selectedBankedTile = Nothing
+          }
+        Nothing ->
+          model
+
+    ClickSlotWithPositioned index fromIndex ->
+      case Dict.get fromIndex model.positionedTiles of
+        Just tile ->
+          { model |
+            positionedTiles = model.positionedTiles
+              |> Dict.insert index tile
+              |> Dict.remove fromIndex
+          , selectedPositionedTile = Nothing
+          }
+        Nothing ->
+          model
+
+    ClickBankWithPositioned fromIndex ->
+      case Dict.get fromIndex model.positionedTiles of
+        Just tile ->
+          { model |
+            bankedTiles = model.bankedTiles |> Dict.insert (Dict.size model.bankedTiles) tile
+          , positionedTiles = model.positionedTiles |> Dict.remove fromIndex
+          , selectedPositionedTile = Nothing
+          }
+        Nothing ->
+          model
+
+    ClickBankWithBanked fromIndex ->
+      case Dict.get fromIndex model.bankedTiles of
+        Just tile ->
+          { model |
+            bankedTiles = model.bankedTiles
+              |> Dict.remove fromIndex
+              |> Dict.insert (Dict.size model.bankedTiles) tile
+              |> Dict.values
+              |> List.indexedMap (,)
+              |> Dict.fromList
+          , selectedBankedTile = Nothing
           }
         Nothing ->
           model
@@ -105,14 +151,27 @@ view model =
     [ h1 [] [text "Solve the Puzzle"]
     , div [class "puzzle"] (List.indexedMap (viewWordSlot model) model.sentence)
     , h2 [] [text "Letter Bank"]
-    , div [class "tile-bank"] (Dict.values (Dict.map (viewTile Banked model.selectedBankTile) model.bankedTiles))
-    , div [] [text (toString model.selectedPositionedTile)]
+    , div
+        [ classList [ ("tile-bank", True), ("tile-selected", (isTileSelected model)) ]
+        , onClick
+          ( if (isPositionedSelected model) then
+              (ClickBankWithPositioned (getSelectedPositionedIndex model))
+            else if (isBankedSelected model) then
+              (ClickBankWithBanked (getSelectedBankedIndex model))
+            else
+              NoOp
+          )
+        ]
+        (Dict.values (Dict.map (viewTile Banked model.selectedBankedTile) model.bankedTiles))
+    , div [] [text ("positioned index: " ++ (toString model.selectedPositionedTile))]
+    , div [] [text ("banked index: " ++ (toString model.selectedBankedTile))]
     ]
 
 viewLetterSlot : Model -> Int -> Letter -> Html Msg
 viewLetterSlot model index letter =
   let
-    (isBankedSelected, selectedIndex) = selectedBanked model
+    (isBankedSelected, selectedBankIndex) = selectedBanked model
+    (isPositionedSelected, selectedPositionedIndex) = selectedPositioned model
   in
     case Dict.get index model.positionedTiles of
       Just tile ->
@@ -120,7 +179,14 @@ viewLetterSlot model index letter =
       Nothing ->
         div
           [ class "empty-slot"
-          , onClick (if isBankedSelected then (ClickSlotWithBanked index selectedIndex) else NoOp)
+          , onClick
+            ( if isBankedSelected then
+                (ClickSlotWithBanked index selectedBankIndex)
+              else if isPositionedSelected then
+                (ClickSlotWithPositioned index selectedPositionedIndex)
+              else
+                NoOp
+            )
           ]
           []
 
@@ -147,9 +213,45 @@ isSelected selectedIndex index =
     Nothing ->
       False
 
+isTileSelected : Model -> Bool
+isTileSelected model =
+  let
+    (isBankedSelected, selectedBankIndex) = selectedBanked model
+    (isPositionedSelected, selectedPositionedIndex) = selectedPositioned model
+  in
+    isBankedSelected || isPositionedSelected
+
+isPositionedSelected : Model -> Bool
+isPositionedSelected model =
+  let
+    (isPositionedSelected, selectedPositionedIndex) = selectedPositioned model
+  in
+    isPositionedSelected
+
+getSelectedPositionedIndex : Model -> Int
+getSelectedPositionedIndex model =
+  let
+    (isPositionedSelected, selectedPositionedIndex) = selectedPositioned model
+  in
+    selectedPositionedIndex
+
+isBankedSelected : Model -> Bool
+isBankedSelected model =
+  let
+    (isBankedSelected, selectedBankedIndex) = selectedBanked model
+  in
+    isBankedSelected
+
+getSelectedBankedIndex : Model -> Int
+getSelectedBankedIndex model =
+  let
+    (isBankedSelected, selectedBankedIndex) = selectedBanked model
+  in
+    selectedBankedIndex
+
 selectedBanked : Model -> (Bool, Int)
 selectedBanked model =
-  case model.selectedBankTile of
+  case model.selectedBankedTile of
     Just value -> (True, value)
     Nothing -> (False, -1)
 

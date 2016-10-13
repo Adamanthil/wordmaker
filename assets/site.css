@@ -3,7 +3,7 @@ body {
   font-family: arial;
   padding: 0;
   margin: 0;
-  background-color: #ffefd8;
+  background-color: #fff7eb;
 }
 
 h1 {
@@ -25,6 +25,16 @@ h2 {
 
 .puzzle {
   margin-bottom: 12px;
+  padding: 10px;
+  border: 1px solid #dcdcdc;
+  border-radius: 5px;
+  background-color: #ffefd8;
+}
+
+.tile-bank {
+  padding: 10px;
+  border: 1px solid #dcdcdc;
+  border-radius: 5px;
 }
 
 .word {
@@ -58,10 +68,15 @@ h2 {
   background-color: #f9b116;
 }
 
-.tile:hover {
+.tile:hover, .tile.selected {
   background-color: #fad27d;
   border-color: #ccc;
   cursor: pointer;
+}
+
+.tile.selected {
+  border-color: #fff;
+  color: #000;
 }
 
 @media (min-width: 320px) {

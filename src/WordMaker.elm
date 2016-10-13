@@ -162,7 +162,7 @@ view model =
               NoOp
           )
         ]
-        (Dict.values (Dict.map (viewTile Banked model.selectedBankedTile) model.bankedTiles))
+        (Dict.values (Dict.map (viewTile Banked False model.selectedBankedTile) model.bankedTiles))
     , div [] [text ("positioned index: " ++ (toString model.selectedPositionedTile))]
     , div [] [text ("banked index: " ++ (toString model.selectedBankedTile))]
     ]
@@ -175,7 +175,7 @@ viewLetterSlot model index letter =
   in
     case Dict.get index model.positionedTiles of
       Just tile ->
-        viewTile Positioned model.selectedPositionedTile index tile
+        viewTile Positioned (letter == tile.letter) model.selectedPositionedTile index tile
       Nothing ->
         div
           [ class "empty-slot"
@@ -194,13 +194,13 @@ viewWordSlot : Model -> Int -> Word -> Html Msg
 viewWordSlot model wordIndex word =
   div [ class "word" ] (List.indexedMap (\index letter -> viewLetterSlot model (index + (calcWordStartIndex model.sentence wordIndex)) letter) word)
 
-viewTile : TileType -> Maybe Int -> Int -> LetterTile -> Html Msg
-viewTile tileType selectedIndex index tile =
+viewTile : TileType -> Bool -> Maybe Int -> Int -> LetterTile -> Html Msg
+viewTile tileType correct selectedIndex index tile =
   let
     selected = isSelected selectedIndex index
   in
     div
-      [ classList [ ("tile", True), ("selected", selected) ]
+      [ classList [ ("tile", True), ("selected", selected), ("correct", correct), ("incorrect", not correct && tileType == Positioned) ]
       , onClick (if selected then (ClearSelected) else if tileType == Banked then (ClickBankTile index) else (ClickPositionedTile index))
       ]
       [ text (String.fromChar (.letter tile)) ]

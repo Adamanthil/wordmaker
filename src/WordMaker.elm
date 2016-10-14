@@ -94,6 +94,7 @@ update msg model =
               |> Dict.fromList
           , positionedTiles = model.positionedTiles |> Dict.insert index tile
           , selectedBankedTile = Nothing
+          , selectedPositionedTile = Nothing
           }
         Nothing ->
           model
@@ -106,6 +107,7 @@ update msg model =
               |> Dict.insert index tile
               |> Dict.remove fromIndex
           , selectedPositionedTile = Nothing
+          , selectedBankedTile = Nothing
           }
         Nothing ->
           model
@@ -117,6 +119,7 @@ update msg model =
             bankedTiles = model.bankedTiles |> Dict.insert (Dict.size model.bankedTiles) tile
           , positionedTiles = model.positionedTiles |> Dict.remove fromIndex
           , selectedPositionedTile = Nothing
+          , selectedBankedTile = Nothing
           }
         Nothing ->
           model
@@ -132,6 +135,7 @@ update msg model =
               |> List.indexedMap (,)
               |> Dict.fromList
           , selectedBankedTile = Nothing
+          , selectedPositionedTile = Nothing
           }
         Nothing ->
           model

@@ -20,7 +20,7 @@ h2 {
 
 #main {
   margin: 0 auto;
-  padding-left: 10px;
+  padding-left: 7px;
 }
 
 .puzzle {
@@ -33,7 +33,7 @@ h2 {
 
 .word {
   display: inline-block;
-  margin: 0 14px 4px 0;
+  margin: 0 13px 4px 0;
 }
 
 .tile, .empty-slot {
@@ -43,10 +43,10 @@ h2 {
   text-align: center;
   vertical-align: middle;
   line-height: 32px;
-  border: 1px solid #ccc;
+  border: 2px solid #ddd;
   border-radius: 3px;
   color: #282319;
-  margin: 2px 2px 2px 0;
+  margin: 2px 1px 2px 0;
 }
 
 .tile-bank .tile {
@@ -62,32 +62,29 @@ h2 {
   font-weight: bold;
   text-transform: uppercase;
   background-color: #fae2af;
+  background: linear-gradient(to bottom, #fae2af, #fff7e8);
 }
 
 .tile.correct {
-  background-color: #faaf0c;
-  border-color: #aaa;
+  background: rgba(255,179,75,1);
+  background: linear-gradient(to bottom, #ffb34b, #f5d63e);
+  border-color: green;
 }
 
 .tile.selected {
-  background-color: #fad27d;
-  border-color: #ccc;
+  background: #fad27d;
+  border-color: #bbb;
   cursor: pointer;
-}
-
-.tile.selected {
-  border-color: #fff;
-  color: #000;
 }
 
 @media (min-width: 320px) {
   #main {
-    width: 316px;
+    width: 320px;
   }
 }
 
 @media (min-width: 360px) {
   #main {
-    width: 354px;
+    width: 360px;
   }
 }

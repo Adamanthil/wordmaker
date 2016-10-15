@@ -7,13 +7,13 @@ body {
 }
 
 h1 {
-  font-size: 22px;
+  font-size: 32px;
   color: #333;
   margin: 6px 0;
 }
 
 h2 {
-  font-size: 16px;
+  font-size: 24px;
   color: #333;
   margin: 4px 0;
 }
@@ -23,8 +23,28 @@ h2 {
   padding-left: 7px;
 }
 
+.instructions {
+  color: #bbb;
+  font-size: 14px;
+}
+
 .puzzle {
-  margin-bottom: 12px;
+  margin: 20px 0 12px;
+}
+
+.status-message {
+  color: #bbb;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 18px;
+}
+
+.completed-message {
+  padding-right: 10px;
+  font-size: 26px;
+  line-height: 1.4;
+  color: #555;
+  font-weight: bold;
 }
 
 .tile-bank {
@@ -69,6 +89,7 @@ h2 {
   background: #ffb34b;
   background: linear-gradient(to bottom, #ffb34b, #f5d63e);
   border-color: green;
+  border-color: #bbb;
 }
 
 .tile.selected {

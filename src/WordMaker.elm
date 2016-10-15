@@ -11,7 +11,11 @@ import Html.App as App
 import Utils exposing (..)
 
 main =
-  App.beginnerProgram { model = initialModel "a surprise awaits you in narnia", view = view, update = update }
+  App.beginnerProgram
+    { model = initialModel "a surprise awaits you in narnia" "Go to the Narnia lamppost. Time is short."
+    , view = view
+    , update = update
+    }
 
 
 -- MODEL
@@ -28,14 +32,15 @@ type alias Model =
   , bankedTiles: Dict Int LetterTile
   , selectedBankedTile: Maybe Int
   , selectedPositionedTile: Maybe Int
+  , completedMessage: String
   }
 
 makeLetterTile : Letter -> LetterTile
 makeLetterTile letter =
   { letter = letter }
 
-initialModel : String -> Model
-initialModel sentence =
+initialModel : String -> String -> Model
+initialModel sentence completedMessage =
   { sentence = sentence |> String.words |> List.map String.toList
   , positionedTiles = Dict.empty
   , bankedTiles = sentence
@@ -47,6 +52,7 @@ initialModel sentence =
       |> Dict.fromList
   , selectedBankedTile = Nothing
   , selectedPositionedTile = Nothing
+  , completedMessage = completedMessage
   }
 
 
@@ -152,24 +158,41 @@ view : Model -> Html Msg
 view model =
   div
     [ id "main" ]
-    [ h1 [] [text "Solve the Puzzle"]
+    [ h1 [] [ text "Solve the Puzzle" ]
+    , div [ class "instructions" ] [ text "Touch a letter to select a tile. Touch a space to place it." ]
     , div [class "puzzle"] (List.indexedMap (viewWordSlot model) model.sentence)
-    , h2 [] [text "Letter Bank"]
     , div
-        [ classList [ ("tile-bank", True), ("tile-selected", (isTileSelected model)) ]
-        , onClick
-          ( if (isPositionedSelected model) then
-              (ClickBankWithPositioned (getSelectedPositionedIndex model))
-            else if (isBankedSelected model) then
-              (ClickBankWithBanked (getSelectedBankedIndex model))
-            else
-              NoOp
-          )
-        ]
-        (Dict.values (Dict.map (viewTile Banked False model.selectedBankedTile) model.bankedTiles))
-    , div [] [text ("positioned index: " ++ (toString model.selectedPositionedTile))]
-    , div [] [text ("banked index: " ++ (toString model.selectedBankedTile))]
+      [ class "status-message" ]
+      [ text ((toString (calcNumCorrect model)) ++ " of " ++ (toString (calcNumTotal model)) ++ " correct")
+      ]
+    , viewPageBottom model
     ]
+
+viewPageBottom : Model -> Html Msg
+viewPageBottom model =
+  if (calcNumCorrect model) == (calcNumTotal model) then
+    div
+      [ class "completed-message" ]
+      [ text "Congratulations!"
+      , br [] []
+      , text model.completedMessage
+      ]
+  else
+    div []
+      [ h2 [] [text "Letter Bank"]
+      , div
+          [ classList [ ("tile-bank", True), ("tile-selected", (isTileSelected model)) ]
+          , onClick
+            ( if (isPositionedSelected model) then
+                (ClickBankWithPositioned (getSelectedPositionedIndex model))
+              else if (isBankedSelected model) then
+                (ClickBankWithBanked (getSelectedBankedIndex model))
+              else
+                NoOp
+            )
+          ]
+          (Dict.values (Dict.map (viewTile Banked False model.selectedBankedTile) model.bankedTiles))
+      ]
 
 viewLetterSlot : Model -> Int -> Letter -> Html Msg
 viewLetterSlot model index letter =
@@ -271,3 +294,32 @@ calcWordStartIndex sentence wordIndex =
     |> List.take wordIndex
     |> List.map (List.length)
     |> List.foldr (+) 0
+
+calcNumCorrectInLetter : Dict Int LetterTile -> Int -> Letter -> Int
+calcNumCorrectInLetter positionedTiles index letter =
+  case Dict.get index positionedTiles of
+    Just tile ->
+      if tile.letter == letter then 1 else 0
+    Nothing ->
+      0
+
+calcNumCorrectInWord : Model -> Int -> Word -> Int
+calcNumCorrectInWord model wordIndex word =
+  let
+    startIndex = calcWordStartIndex model.sentence wordIndex
+  in
+    word
+      |> List.indexedMap (\index letter -> (calcNumCorrectInLetter model.positionedTiles (startIndex + index) letter))
+      |> List.sum
+
+calcNumCorrect : Model -> Int
+calcNumCorrect model =
+  model.sentence
+    |> List.indexedMap (calcNumCorrectInWord model)
+    |> List.sum
+
+calcNumTotal : Model -> Int
+calcNumTotal model =
+  model.sentence
+    |> List.map List.length
+    |> List.sum

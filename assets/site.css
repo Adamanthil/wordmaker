@@ -61,12 +61,12 @@ h2 {
   font-size: 24px;
   font-weight: bold;
   text-transform: uppercase;
-  background-color: #fae2af;
+  background: #fae2af;
   background: linear-gradient(to bottom, #fae2af, #fff7e8);
 }
 
 .tile.correct {
-  background: rgba(255,179,75,1);
+  background: #ffb34b;
   background: linear-gradient(to bottom, #ffb34b, #f5d63e);
   border-color: green;
 }

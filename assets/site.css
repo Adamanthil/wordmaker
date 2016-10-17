@@ -97,8 +97,8 @@ h2 {
 }
 
 .tile.selected {
-  background: #fad27d;
-  border-color: #bbb;
+  background: #fada96;
+  border-color: #aaa;
   cursor: pointer;
 }
 

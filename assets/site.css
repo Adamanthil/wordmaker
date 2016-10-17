@@ -24,20 +24,23 @@ h2 {
 }
 
 .instructions {
-  color: #bbb;
+  color: #aaa;
   font-size: 14px;
 }
 
 .puzzle {
-  margin: 20px 0 12px;
+  margin: 14px 0;
 }
 
 .status-message {
-  color: #bbb;
-  font-size: 32px;
+  color: #aaa;
+  font-size: 28px;
   font-weight: bold;
-  line-height: 2;
-  margin-bottom: 18px;
+  height: 36px;
+}
+
+.bottom {
+  margin-top: 20px;
 }
 
 .completed-message {

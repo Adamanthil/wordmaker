@@ -161,38 +161,48 @@ view model =
     [ h1 [] [ text "Solve the Puzzle" ]
     , div [ class "instructions" ] [ text "Touch a letter to select a tile. Touch a space to place it." ]
     , div [class "puzzle"] (List.indexedMap (viewWordSlot model) model.sentence)
-    , div
-      [ class "status-message" ]
-      [ text ((toString (calcNumCorrect model)) ++ " of " ++ (toString (calcNumTotal model)) ++ " correct")
-      ]
+    , div [ class "status-message" ] [ text (viewStatusMessage model) ]
     , viewPageBottom model
     ]
 
+viewStatusMessage : Model -> String
+viewStatusMessage model =
+  case (Dict.isEmpty model.positionedTiles) of
+    True ->
+      ""
+    False ->
+      ((toString (calcNumCorrect model)) ++ " of " ++ (toString (calcNumTotal model)) ++ " correct")
+
 viewPageBottom : Model -> Html Msg
 viewPageBottom model =
-  if (calcNumCorrect model) == (calcNumTotal model) then
-    div
-      [ class "completed-message" ]
-      [ text "Congratulations!"
-      , br [] []
-      , text model.completedMessage
-      ]
-  else
-    div []
-      [ h2 [] [text "Letter Bank"]
-      , div
-          [ classList [ ("tile-bank", True), ("tile-selected", (isTileSelected model)) ]
-          , onClick
-            ( if (isPositionedSelected model) then
-                (ClickBankWithPositioned (getSelectedPositionedIndex model))
-              else if (isBankedSelected model) then
-                (ClickBankWithBanked (getSelectedBankedIndex model))
-              else
-                NoOp
-            )
+  div
+    [ class "bottom" ]
+    (
+      if (calcNumCorrect model) == (calcNumTotal model) then
+        [
+          div
+            [ class "completed-message" ]
+            [ text "Congratulations!"
+            , br [] []
+            , text model.completedMessage
+            ]
+        ]
+      else
+          [ h2 [] [text "Letter Bank"]
+          , div
+              [ classList [ ("tile-bank", True), ("tile-selected", (isTileSelected model)) ]
+              , onClick
+                ( if (isPositionedSelected model) then
+                    (ClickBankWithPositioned (getSelectedPositionedIndex model))
+                  else if (isBankedSelected model) then
+                    (ClickBankWithBanked (getSelectedBankedIndex model))
+                  else
+                    NoOp
+                )
+              ]
+              (Dict.values (Dict.map (viewTile Banked False model.selectedBankedTile) model.bankedTiles))
           ]
-          (Dict.values (Dict.map (viewTile Banked False model.selectedBankedTile) model.bankedTiles))
-      ]
+    )
 
 viewLetterSlot : Model -> Int -> Letter -> Html Msg
 viewLetterSlot model index letter =

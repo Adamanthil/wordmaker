@@ -238,6 +238,7 @@ viewTile tileType correct selectedIndex index tile =
   in
     div
       [ classList [ ("tile", True), ("selected", selected), ("correct", correct), ("incorrect", not correct && tileType == Positioned) ]
+      , attribute "role" "button"
       , onClick (if selected then (ClearSelected) else if tileType == Banked then (ClickBankTile index) else (ClickPositionedTile index))
       ]
       [ text (String.fromChar (.letter tile)) ]

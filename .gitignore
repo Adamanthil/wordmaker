@@ -1,2 +1,5 @@
 elm-stuff
 elm.js
+composer.phar
+vendor/
+config.php

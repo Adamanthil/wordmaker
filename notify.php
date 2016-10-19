@@ -33,7 +33,7 @@ function sendSms($message) {
 }
 
 function getVisitMessage() {
-	return "WordMaker has been visited\nby " . getUserAgentDisplay() . "\nin " . getIPLocationDisplay();
+	return "WordMaker has been visited by " . getUserAgentDisplay() . " in " . getIPLocationDisplay();
 }
 
 function getUserAgentDisplay() {

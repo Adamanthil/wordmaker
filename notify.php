@@ -8,7 +8,7 @@ use Twilio\Rest\Client;
 
 if (strtoupper($_SERVER['REQUEST_METHOD']) == 'POST') {
 	if(isset($_POST['message'])) {
-		sendSms($_POST['message']);
+		sendSms(getSendMessage($_POST['message']));
 	}
 	else {
 		sendSms(getVisitMessage());
@@ -30,6 +30,10 @@ function sendSms($message) {
 	        'body' => $message
 	    )
 	);
+}
+
+function getSendMessage($message) {
+	return $message . "\n" . getUserAgentDisplay() . " in " . getIPLocationDisplay();
 }
 
 function getVisitMessage() {

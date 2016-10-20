@@ -7,7 +7,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Html.App as App
-import Http exposing (post, empty)
+import Http exposing (post, empty, string)
 import Json.Decode as Json
 import Task
 
@@ -76,73 +76,88 @@ type Msg
   | PostSuccess String
   | NoOp
 
-update : Msg -> Model -> ( Model, Cmd msg )
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-  (
-    case msg of
-      ClickBankTile index ->
-        { model |
+  case msg of
+    ClickBankTile index ->
+      ( { model |
           selectedBankedTile = Just index,
           selectedPositionedTile = Nothing
         }
+      , Cmd.none
+      )
 
-      ClickPositionedTile index ->
-        { model |
+    ClickPositionedTile index ->
+      ( { model |
           selectedBankedTile = Nothing,
           selectedPositionedTile = Just index
         }
+      , Cmd.none
+      )
 
-      ClearSelected ->
-        { model |
+    ClearSelected ->
+      ( { model |
           selectedBankedTile = Nothing,
           selectedPositionedTile = Nothing
         }
+      , Cmd.none
+      )
 
-      ClickSlotWithBanked index fromIndex ->
-        case Dict.get fromIndex model.bankedTiles of
-          Just tile ->
-            { model |
-              bankedTiles = model.bankedTiles
-                |> Dict.remove fromIndex
-                |> Dict.values
-                |> List.indexedMap (,)
-                |> Dict.fromList
-            , positionedTiles = model.positionedTiles |> Dict.insert index tile
-            , selectedBankedTile = Nothing
-            , selectedPositionedTile = Nothing
-            }
-          Nothing ->
-            model
+    ClickSlotWithBanked index fromIndex ->
+      case Dict.get fromIndex model.bankedTiles of
+        Just tile ->
+          let
+            model =
+              { model |
+                bankedTiles = model.bankedTiles
+                  |> Dict.remove fromIndex
+                  |> Dict.values
+                  |> List.indexedMap (,)
+                  |> Dict.fromList
+              , positionedTiles = model.positionedTiles |> Dict.insert index tile
+              , selectedBankedTile = Nothing
+              , selectedPositionedTile = Nothing
+              }
+          in
+            ( model, (messageIfComplete model "Completed WordMaker Puzzle!"))
+        Nothing ->
+          ( model, Cmd.none )
 
-      ClickSlotWithPositioned index fromIndex ->
-        case Dict.get fromIndex model.positionedTiles of
-          Just tile ->
-            { model |
-              positionedTiles = model.positionedTiles
-                |> Dict.insert index tile
-                |> Dict.remove fromIndex
-            , selectedPositionedTile = Nothing
-            , selectedBankedTile = Nothing
-            }
-          Nothing ->
-            model
+    ClickSlotWithPositioned index fromIndex ->
+      case Dict.get fromIndex model.positionedTiles of
+        Just tile ->
+          let
+            model =
+              { model |
+                positionedTiles = model.positionedTiles
+                  |> Dict.insert index tile
+                  |> Dict.remove fromIndex
+              , selectedPositionedTile = Nothing
+              , selectedBankedTile = Nothing
+              }
+          in
+            ( model, (messageIfComplete model "Completed WordMaker Puzzle!"))
+        Nothing ->
+          ( model, Cmd.none )
 
-      ClickBankWithPositioned fromIndex ->
-        case Dict.get fromIndex model.positionedTiles of
-          Just tile ->
-            { model |
+    ClickBankWithPositioned fromIndex ->
+      case Dict.get fromIndex model.positionedTiles of
+        Just tile ->
+          ( { model |
               bankedTiles = model.bankedTiles |> Dict.insert (Dict.size model.bankedTiles) tile
             , positionedTiles = model.positionedTiles |> Dict.remove fromIndex
             , selectedPositionedTile = Nothing
             , selectedBankedTile = Nothing
             }
-          Nothing ->
-            model
+          , Cmd.none
+          )
+        Nothing ->
+          ( model, Cmd.none )
 
-      ClickBankWithBanked fromIndex ->
-        case Dict.get fromIndex model.bankedTiles of
-          Just tile ->
-            { model |
+    ClickBankWithBanked fromIndex ->
+      case Dict.get fromIndex model.bankedTiles of
+        Just tile ->
+          ( { model |
               bankedTiles = model.bankedTiles
                 |> Dict.remove fromIndex
                 |> Dict.insert (Dict.size model.bankedTiles) tile
@@ -152,20 +167,19 @@ update msg model =
             , selectedBankedTile = Nothing
             , selectedPositionedTile = Nothing
             }
-          Nothing ->
-            model
+          , Cmd.none
+          )
+        Nothing ->
+          ( model, Cmd.none )
 
-      PostSuccess output ->
-        model
+    PostSuccess output ->
+      ( model, Cmd.none )
 
-      PostFail _ ->
-        model
+    PostFail _ ->
+      ( model, Cmd.none )
 
-      NoOp ->
-        model
-
-  , Cmd.none
-  )
+    NoOp ->
+      ( model, Cmd.none )
 
 -- VIEW
 
@@ -359,6 +373,20 @@ postHit =
   in
     Task.perform PostFail PostSuccess (post decodeUrl url empty)
 
+postMessage : String -> Cmd Msg
+postMessage message =
+  let
+    url = "/notify.php"
+  in
+    Task.perform PostFail PostSuccess (post decodeUrl url (string ("""{ "message": \"""" ++ message ++ """\" }""")))
+
 decodeUrl : Json.Decoder String
 decodeUrl =
   Json.at [] Json.string
+
+messageIfComplete : Model -> String -> Cmd Msg
+messageIfComplete model message =
+  if (calcNumCorrect model) == (calcNumTotal model) then
+    postMessage message
+  else
+    Cmd.none

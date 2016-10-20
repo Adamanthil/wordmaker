@@ -8,7 +8,10 @@ use Twilio\Rest\Client;
 
 if (strtoupper($_SERVER['REQUEST_METHOD']) == 'POST') {
 	if(isset($_POST['message'])) {
-		sendSms(getSendMessage($_POST['message']));
+		sendSms($_POST['message']);
+	}
+	else if(isset($_POST['complete']) || isset($_GET['complete'])) {
+		sendSms(getCompletedMessage());
 	}
 	else {
 		sendSms(getVisitMessage());
@@ -34,6 +37,10 @@ function sendSms($message) {
 
 function getSendMessage($message) {
 	return $message . "\n" . getUserAgentDisplay() . " in " . getIPLocationDisplay();
+}
+
+function getCompletedMessage() {
+	return "Completed WordMaker Puzzle!\n" . getUserAgentDisplay() . " in " . getIPLocationDisplay();
 }
 
 function getVisitMessage() {

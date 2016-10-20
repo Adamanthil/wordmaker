@@ -119,7 +119,7 @@ update msg model =
               , selectedPositionedTile = Nothing
               }
           in
-            ( model, (messageIfComplete model "Completed WordMaker Puzzle!"))
+            ( model, (notifyIfComplete model))
         Nothing ->
           ( model, Cmd.none )
 
@@ -136,7 +136,7 @@ update msg model =
               , selectedBankedTile = Nothing
               }
           in
-            ( model, (messageIfComplete model "Completed WordMaker Puzzle!"))
+            ( model, (notifyIfComplete model))
         Nothing ->
           ( model, Cmd.none )
 
@@ -373,20 +373,27 @@ postHit =
   in
     Task.perform PostFail PostSuccess (post decodeUrl url empty)
 
+postComplete : Cmd Msg
+postComplete =
+  let
+    url = "/notify.php?complete"
+  in
+    Task.perform PostFail PostSuccess (post decodeUrl url empty)
+
 postMessage : String -> Cmd Msg
 postMessage message =
   let
     url = "/notify.php"
   in
-    Task.perform PostFail PostSuccess (post decodeUrl url (string ("""{ "message": \"""" ++ message ++ """\" }""")))
+    Task.perform PostFail PostSuccess (post decodeUrl url (string ("""{ "message": \"""" ++ message ++ """\" }""")) )
 
 decodeUrl : Json.Decoder String
 decodeUrl =
   Json.at [] Json.string
 
-messageIfComplete : Model -> String -> Cmd Msg
-messageIfComplete model message =
+notifyIfComplete : Model -> Cmd Msg
+notifyIfComplete model =
   if (calcNumCorrect model) == (calcNumTotal model) then
-    postMessage message
+    postComplete
   else
     Cmd.none

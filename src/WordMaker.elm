@@ -1,20 +1,20 @@
 module WordMaker exposing (..)
 
+import Browser
 import String
 import List
+import Random.List exposing (shuffle)
 import Dict exposing(Dict)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
-import Html.App as App
-import Http exposing (post, empty, string)
+import Http exposing (post)
 import Json.Decode as Json
 import Task
 
-import Utils exposing (..)
 
 main =
-  App.program
+  Browser.document
     { init = init "a surprise awaits you in narnia" "Go to the Narnia lamppost. Time is short."
     , view = view
     , update = update
@@ -50,9 +50,9 @@ init sentence completedMessage =
     , bankedTiles = sentence
         |> String.filter (\letter -> letter /= ' ')
         |> String.toList
-        |> Utils.shuffleList
+        |> shuffle
         |> List.map makeLetterTile
-        |> List.indexedMap (,)
+        |> List.indexedMap Tuple.pair
         |> Dict.fromList
     , selectedBankedTile = Nothing
     , selectedPositionedTile = Nothing
@@ -112,7 +112,7 @@ update msg model =
                 bankedTiles = model.bankedTiles
                   |> Dict.remove fromIndex
                   |> Dict.values
-                  |> List.indexedMap (,)
+                  |> List.indexedMap Tuple.pair
                   |> Dict.fromList
               , positionedTiles = model.positionedTiles |> Dict.insert index tile
               , selectedBankedTile = Nothing
@@ -162,7 +162,7 @@ update msg model =
                 |> Dict.remove fromIndex
                 |> Dict.insert (Dict.size model.bankedTiles) tile
                 |> Dict.values
-                |> List.indexedMap (,)
+                |> List.indexedMap Tuple.pair
                 |> Dict.fromList
             , selectedBankedTile = Nothing
             , selectedPositionedTile = Nothing

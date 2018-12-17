@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cd src && elm-make WordMaker.elm --output ../elm.js && cd ..
+elm make src/WordMaker.elm --output elm.js
